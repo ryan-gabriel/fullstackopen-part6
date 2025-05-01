@@ -33,9 +33,7 @@ const reducer = (state = initialState, action) => {
     return state.map((anecdote) =>
       anecdote.id !== id ? anecdote : votedAnecdote
     );
-  }
-
-  else if (action.type === "NEW_ANECDOTE") {
+  } else if (action.type === "NEW_ANECDOTE") {
     const newAnecdote = action.payload;
     return [...state, newAnecdote];
   }

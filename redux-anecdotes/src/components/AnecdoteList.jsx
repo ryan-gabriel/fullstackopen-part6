@@ -21,13 +21,16 @@ const Anecdote = ({ anecdote }) => {
 
 const AnecdoteList = () => {
   const anecdotes = useSelector((state) =>
-    state.sort((a, b) => b.votes - a.votes)
+    state.anecdotes
+      .filter((a) => a.content.toLowerCase().includes(state.filter.toLowerCase()))
+      .sort((a, b) => b.votes - a.votes)
   );
 
   return anecdotes.map((anecdote) => (
     <Anecdote key={anecdote.id} anecdote={anecdote} />
   ));
 };
+
 Anecdote.propTypes = {
   anecdote: PropTypes.shape({
     id: PropTypes.string.isRequired,

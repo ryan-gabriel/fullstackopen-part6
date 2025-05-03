@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
-import { voting } from "../reducers/anecdoteReducer";
+import { voteAnecdote } from "../reducers/anecdoteReducer";
 import PropTypes from "prop-types";
 
 const Anecdote = ({ anecdote }) => {
   const dispatch = useDispatch();
   const vote = (id) => {
     console.log("vote", id);
-    dispatch(voting(id));
+    dispatch(voteAnecdote(id));
   };
   return (
     <div key={anecdote.id}>
@@ -20,11 +20,12 @@ const Anecdote = ({ anecdote }) => {
 };
 
 const AnecdoteList = () => {
-  const anecdotes = useSelector((state) =>
-    state.anecdotes
-      .filter((a) => a.content.toLowerCase().includes(state.filter.toLowerCase()))
-      .sort((a, b) => b.votes - a.votes)
-  );
+  const anecdotes = useSelector((state) => {
+    const filter = state.filter.toLowerCase();
+    return state.anecdotes
+      .filter((a) => a.content.toLowerCase().includes(filter))
+      .sort((a, b) => b.votes - a.votes);
+  });
 
   return anecdotes.map((anecdote) => (
     <Anecdote key={anecdote.id} anecdote={anecdote} />

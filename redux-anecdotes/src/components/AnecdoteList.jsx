@@ -1,14 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import { voteAnecdote } from "../reducers/anecdoteReducer";
 import PropTypes from "prop-types";
-import { showNotification } from "../reducers/notificationReducer";
+import { setNotification } from "../reducers/notificationReducer";
 
 const Anecdote = ({ anecdote }) => {
   const dispatch = useDispatch();
   const vote = (id, content) => {
     console.log("vote", id);
     dispatch(voteAnecdote(id));
-    dispatch(showNotification(`you voted '${content}'`, 5));
+    dispatch(setNotification(`you voted '${content}'`, 10));
   };
   return (
     <div key={anecdote.id}>

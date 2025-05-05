@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import anecdotes from "../services/anecdotes";
+import anecdoteService from "../services/anecdotes";
 
 const anecdoteSlice = createSlice({
   name: "anecdotes",
@@ -16,16 +16,11 @@ const anecdoteSlice = createSlice({
         anecdote.id !== id ? anecdote : votedAnecdote
       );
     },
-    createAnecdote(state, action) {
-      state.push(action.payload);
-    },
-    appendAnecdote(state, action) {
-      state.push(action.payload);
-    }
   },
   extraReducers: (builder) => {
     builder
       .addCase(initializeAnecdotes.fulfilled, (state, action) => {
+        console.log('Anecdotes initialized successfully:');
         return action.payload;
       })
       .addCase(initializeAnecdotes.pending, () => {
@@ -34,16 +29,36 @@ const anecdoteSlice = createSlice({
       .addCase(initializeAnecdotes.rejected, (state, action) => {
         console.error('Failed to fetch anecdotes', action.error);
       });
+
+    builder
+      .addCase(createAnecdote.fulfilled, (state, action) => {
+        state.push(action.payload);
+        console.log('Anecdote created successfully');
+      })
+      .addCase(createAnecdote.pending, () => {
+        console.log('Creating anecdote...');
+      })
+      .addCase(createAnecdote.rejected, (state, action) => {
+        console.error('Failed to create anecdote', action.error);
+      });
   },
 });
 
-export const { voteAnecdote, createAnecdote, appendAnecdote } = anecdoteSlice.actions;
+export const { voteAnecdote } = anecdoteSlice.actions;
 
 export const initializeAnecdotes = createAsyncThunk(
   "anecdotes/initializeAnecdotes",
   async () => {
-    const anecdotesData = await anecdotes.getAll();
+    const anecdotesData = await anecdoteService.getAll();
     return anecdotesData;
+  }
+);
+
+export const createAnecdote = createAsyncThunk(
+  "anecdotes/createAnecdote",
+  async (content) => {
+    const newAnecdote = await anecdoteService.createNew(content);
+    return newAnecdote;
   }
 );
 

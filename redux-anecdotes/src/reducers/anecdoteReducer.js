@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import anecdotes from "../services/anecdotes";
 
 const anecdoteSlice = createSlice({
   name: "anecdotes",
@@ -20,13 +21,30 @@ const anecdoteSlice = createSlice({
     },
     appendAnecdote(state, action) {
       state.push(action.payload);
-    },
-    setAnecdotes(state, action) {
-      return action.payload;
-    },
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(initializeAnecdotes.fulfilled, (state, action) => {
+        return action.payload;
+      })
+      .addCase(initializeAnecdotes.pending, () => {
+        console.log('Loading anecdotes...');
+      })
+      .addCase(initializeAnecdotes.rejected, (state, action) => {
+        console.error('Failed to fetch anecdotes', action.error);
+      });
   },
 });
 
-export const { voteAnecdote, createAnecdote, appendAnecdote, setAnecdotes } =
-  anecdoteSlice.actions;
+export const { voteAnecdote, createAnecdote, appendAnecdote } = anecdoteSlice.actions;
+
+export const initializeAnecdotes = createAsyncThunk(
+  "anecdotes/initializeAnecdotes",
+  async () => {
+    const anecdotesData = await anecdotes.getAll();
+    return anecdotesData;
+  }
+);
+
 export default anecdoteSlice.reducer;

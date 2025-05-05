@@ -4,19 +4,7 @@ import anecdoteService from "../services/anecdotes";
 const anecdoteSlice = createSlice({
   name: "anecdotes",
   initialState: [],
-  reducers: {
-    voteAnecdote(state, action) {
-      const id = action.payload;
-      const anecdoteToVote = state.find((a) => a.id === id);
-      const votedAnecdote = {
-        ...anecdoteToVote,
-        votes: anecdoteToVote.votes + 1,
-      };
-      return state.map((anecdote) =>
-        anecdote.id !== id ? anecdote : votedAnecdote
-      );
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(initializeAnecdotes.fulfilled, (state, action) => {
@@ -41,10 +29,23 @@ const anecdoteSlice = createSlice({
       .addCase(createAnecdote.rejected, (state, action) => {
         console.error('Failed to create anecdote', action.error);
       });
+    
+    builder
+      .addCase(voteAnecdote.fulfilled, (state, action) => {
+        const id = action.payload.id;
+        const anecdoteToVote = state.find((a) => a.id === id);
+        const updatedAnecdote = { ...anecdoteToVote, votes: anecdoteToVote.votes + 1 };
+        console.log('Anecdote voted successfully');
+        return state.map((anecdote) => (anecdote.id !== id ? anecdote : updatedAnecdote));
+      })
+      .addCase(voteAnecdote.pending, () => {
+        console.log('Voting for anecdote...');
+      })
+      .addCase(voteAnecdote.rejected, (state, action) => {
+        console.error('Failed to vote for anecdote', action.error);
+      });
   },
 });
-
-export const { voteAnecdote } = anecdoteSlice.actions;
 
 export const initializeAnecdotes = createAsyncThunk(
   "anecdotes/initializeAnecdotes",
@@ -59,6 +60,14 @@ export const createAnecdote = createAsyncThunk(
   async (content) => {
     const newAnecdote = await anecdoteService.createNew(content);
     return newAnecdote;
+  }
+);
+
+export const voteAnecdote = createAsyncThunk(
+  "anecdotes/voteAnecdote",
+  async (id) => {
+    const updatedAnecdote = await anecdoteService.voteAnecdote(id);
+    return updatedAnecdote;
   }
 );
 
